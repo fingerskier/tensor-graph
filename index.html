@@ -4,12 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>tensor-graph</title>
+    <script src="tensor.js"></script>
+    <script src="index.js"></script>
+
+    <style>
+        table {
+            margin: 0 0 3rem 3rem;
+        }
+
+        label {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-    <script src="tensor.js"></script>
-    <script>
-        let T = new Tensor
-    </script>
+    <div id="main">
+        <form id="inputter">
+            <h3>Inputs</h3>
+            <fieldset id="inputs"></fieldset>
+            <h3>Expectation</h3>
+            <fieldset id="expects"></fieldset>
+            <button onclick="return handle_activation(event)" type="button">Activate</button>
+            <button onclick="return handle_inputs(event)" type="button">Update</button>
+            <button onclick="return handle_save(event)" type="button">Save</button>
+            <button onclick="return handle_load(event)" type="button">Load</button>
+        </form>
+
+        <div id="error"></div>
+        <br/>
+        <div id="tensor"></div>
+    </div>
 </body>
 </html>
