@@ -1,0 +1,26 @@
+{
+  "name": "tensor-graph",
+  "version": "1.0.0",
+  "description": "Graph of tensors that can be trained and composed to solve problems.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fingerskier/tensor-graph.git"
+  },
+  "keywords": [
+    "neural",
+    "network",
+    "perceptron",
+    "machine",
+    "learning"
+  ],
+  "author": "fingerskier",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/fingerskier/tensor-graph/issues"
+  },
+  "homepage": "https://github.com/fingerskier/tensor-graph#readme"
+}
