@@ -1,10 +1,11 @@
-let T = new Tensor({dim:{X:3, Y:3, Z:4}})
+let dim = {X:5, Y:3, Z:4}
+let T = new Tensor({dimension:dim})
 
 window.onload = function() {
     // draw inputs
     let inputs = document.getElementById('inputs')
 
-    for (let Y=0; Y < 3; Y++) {
+    for (let Y=0; Y < dim.Y; Y++) {
         let node = document.createElement('label')
         let input = document.createElement('input')
         let input_id = `input-${Y}`
@@ -20,7 +21,7 @@ window.onload = function() {
     // draw expects
     let expects = document.getElementById('expects')
 
-    for (let Y=0; Y < 3; Y++) {
+    for (let Y=0; Y < dim.Y; Y++) {
         let node = document.createElement('label')
         let input = document.createElement('input')
         let input_id = `expect-${Y}`
@@ -57,16 +58,16 @@ function draw_tensor() {
     tensor = document.createElement('div')
     tensor.setAttribute('id', 'tensor')
 
-    for (let Z=0; Z < 4; Z++) {
+    for (let Z=0; Z < dim.Z; Z++) {
         let table = document.createElement('table')
         let header = document.createElement('div')
 
         header.textContent = `Layer ${Z}`
 
-        for (let Y=0; Y < 3; Y++) {
+        for (let Y=0; Y < dim.Y; Y++) {
             let row = document.createElement('tr')
             
-            for (let X=0; X < 3; X++) {
+            for (let X=0; X < dim.X; X++) {
                 let cell = document.createElement('td')
 
                 cell.textContent = Math.trunc(T.state(X,Y,Z)*100)/100 //`${X},${Y},${Z}`

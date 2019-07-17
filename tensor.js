@@ -14,7 +14,7 @@ class Tensor {
     constructor(config) {
 
         this.bias = 1
-        this.dim = {X:3, Y:3, Z:4}
+        this.dimension = {X:3, Y:3, Z:4}
         this._expected = [0.5, 0.5, 0.5]
         this.maxError = 0
         this.rate = 0.1
@@ -25,9 +25,9 @@ class Tensor {
             this[thing] = config[thing]
         }
 
-        for (let X=0; X < this.dim.X; X++) {
-            for (let Y=0; Y < this.dim.Y; Y++) {
-                for (let Z=0; Z < this.dim.Z; Z++) {
+        for (let X=0; X < this.dimension.X; X++) {
+            for (let Y=0; Y < this.dimension.Y; Y++) {
+                for (let Z=0; Z < this.dimension.Z; Z++) {
                     this.state(X, Y, Z, 0.5)
                 }
             }
@@ -35,18 +35,17 @@ class Tensor {
     }
 
     activate() {
-        for (let X=1; X < this.dim.X; X++) {
-            for (let Y=0; Y < this.dim.Y; Y++) {
+        for (let X=1; X < this.dimension.X; X++) {
+            for (let Y=0; Y < this.dimension.Y; Y++) {
                 let input = this.state(X-1, Y, 0)
                 let value = this.bias
 
-                for (let Z=1; Z < this.dim.Z; Z++) {
+                for (let Z=1; Z < this.dimension.Z; Z++) {
                     let weight = this.state(X, Y, Z)
-                    let value += (input * weight)
-
+                    value += (input * weight)
                 }
 
-                this.state(X, Y, 0, TRELU(value))
+                this.state(X, Y, 0, RELU(value))
             }
         }
     }
@@ -58,7 +57,7 @@ class Tensor {
     }
 
     set input(arr) {
-        for (let Y=0; Y < this.dim.Y; Y++) this.state(0, Y, 0, arr[Y])
+        for (let Y=0; Y < this.dimension.Y; Y++) this.state(0, Y, 0, arr[Y])
 
         this.activate()
     }
@@ -66,17 +65,17 @@ class Tensor {
     layer(X) {
         let result = []
 
-        for (let Y=0; Y < this.dim.Y; Y++) result.push(this.state(X, Y, 0))
+        for (let Y=0; Y < this.dimension.Y; Y++) result.push(this.state(X, Y, 0))
 
         return result
     }
 
     get output() {
-        return this.layer(this.dim.X-1)
+        return this.layer(this.dimension.X-1)
     }
 
     state(X, Y, Z, value) {
-        let index = X + (Y * this.dim.X) + (Z * this.dim.X * this.dim.Y)
+        let index = X + (Y * this.dimension.X) + (Z * this.dimension.X * this.dimension.Y)
 
         if (value !== undefined) this._state[index] = value
 
@@ -90,17 +89,19 @@ class Tensor {
 
     correct() {
         let error = []
+        let expectation = this._expected
+
         this.maxError = 0
 
-        for (let Y=0; Y < this.dim.Y; Y++) {
-            error[Y] = this._expected[Y] - this.state(this.dim.X-1, Y, 0)
+        for (let Y=0; Y < this.dimension.Y; Y++) {
+            error[Y] = expectation[Y] - this.state(this.dimension.X-1, Y, 0)
 
             this.maxError = Math.max(Math.abs(error[Y]), this.maxError)
         }
 
-        for (let X=this.dim.X-1; X >= 1; X--) {
-            for (let Y=0; Y < this.dim.Y; Y++) {
-                for (let Z=1; Z < this.dim.Z; Z++) {
+        for (let X=this.dimension.X-1; X >= 1; X--) {
+            for (let Y=0; Y < this.dimension.Y; Y++) {
+                for (let Z=1; Z < this.dimension.Z; Z++) {
                     let old_value = this.state(X,Y,Z)
                     let diff = error[Y] * this.state(X-1, Y, 0) * this.rate
                     let new_value = old_value+diff
