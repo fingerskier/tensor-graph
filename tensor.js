@@ -25,13 +25,7 @@ class Tensor {
             this[thing] = config[thing]
         }
 
-        for (let X=0; X < this.dimension.X; X++) {
-            for (let Y=0; Y < this.dimension.Y; Y++) {
-                for (let Z=0; Z < this.dimension.Z; Z++) {
-                    this.state(X, Y, Z, 0.5)
-                }
-            }
-        }
+        this.reset()
     }
 
     activate() {
@@ -74,6 +68,19 @@ class Tensor {
         return this.layer(this.dimension.X-1)
     }
 
+    reset() {
+        let initial_value = 0.5
+
+        for (let X=0; X < this.dimension.X; X++) {
+            for (let Y=0; Y < this.dimension.Y; Y++) {
+                for (let Z=0; Z < this.dimension.Z; Z++) {
+                    if (X) this.state(X, Y, Z, Math.random())
+                    else this.state(X, Y, Z, 0)
+                }
+            }
+        }
+    }
+
     state(X, Y, Z, value) {
         let index = X + (Y * this.dimension.X) + (Z * this.dimension.X * this.dimension.Y)
 
@@ -110,8 +117,11 @@ class Tensor {
                     this.state(X,Y,Z,new_value)
                 }
             }
+
+            this.activate()
+
+            expectation = this.layer(X)
         }
 
-        this.activate()
     }
 }

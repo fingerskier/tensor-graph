@@ -35,22 +35,12 @@ window.onload = function() {
     }
 
     draw_tensor()
-    
-    
-    T.input = [.1, .2, .3]
-    
-    console.log(`Output = ${T.output}`)
-    
-    T.expected = [.25, .35, .45]
-    
-    T.train(0.1)
-    
-    console.log(`Output = ${T.output}`)    
 }
 
 function draw_tensor() {
     let errorer = document.getElementById('error')
     let main = document.getElementById('main')
+    let target_error = document.getElementById('target_error')
     let tensor = document.getElementById('tensor')
 
     tensor.outerHTML = ""
@@ -70,7 +60,8 @@ function draw_tensor() {
             for (let X=0; X < dim.X; X++) {
                 let cell = document.createElement('td')
 
-                cell.textContent = Math.trunc(T.state(X,Y,Z)*100)/100 //`${X},${Y},${Z}`
+                // cell.textContent = `${X},${Y},${Z}`
+                cell.textContent = Math.trunc(T.state(X,Y,Z)*100)/100
 
                 row.appendChild(cell)
             }
@@ -85,6 +76,8 @@ function draw_tensor() {
     main.appendChild(tensor)
 
     errorer.textContent = `Max Error = ${T.maxError}`
+    
+    target_error.setAttribute('value', T.threshold)
 }
 
 function handle_activation(event) {
@@ -134,4 +127,14 @@ function handle_load(event) {
 
 function handle_save(event) {
     window.localStorage.setItem('tensor', T._state)
+}
+
+function handle_train(event) {
+    let value = +event.target.value
+
+    if (value < 0.01) value = 0.01
+
+    if (value > 1) value = 1
+
+    while (T.maxError > value) handle_inputs()
 }

@@ -31,7 +31,8 @@
             <h3>Expectation</h3>
             <fieldset id="expects"></fieldset>
             <button onclick="return handle_activation(event)" type="button">Activate</button>
-            <button onclick="return handle_inputs(event)" type="button">Update</button>
+            <button onclick="return handle_inputs(event)" type="button">Correct</button>
+            <input id="target_error" onchange="return handle_train(event)" step="0.01" type="number" value="0.5">
             <button onclick="return handle_save(event)" type="button">Save</button>
             <button onclick="return handle_load(event)" type="button">Load</button>
         </form>
