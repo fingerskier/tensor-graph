@@ -10,20 +10,28 @@ function TRELU(X) {
     return Math.min(Math.max(0, X), 1)
 }
 
+/*
+    X = number of layers, vector[0] is inputs, vector[N] is outputs
+    Y = number of inputs/outputs (same)
+    Z = depth, weights, auto-config
+*/
+
 class Tensor {
     constructor(config) {
 
         this.bias = 1
-        this.dimension = {X:3, Y:3, Z:4}
+        this.dimension = {X:3, Y:3}
         this._expected = [0.5, 0.5, 0.5]
         this.maxError = 0
         this.rate = 0.1
         this.threshold = 0.1
         this._state = []
-
+        
         for (let thing in config) {
             this[thing] = config[thing]
         }
+
+        this.dimension.Z = this.dimension.Y + 1
 
         this.reset()
     }
@@ -47,7 +55,7 @@ class Tensor {
     set expected(arr) {
         this._expected = arr
 
-        this.correct()
+        this.train()
     }
 
     set input(arr) {
@@ -56,7 +64,7 @@ class Tensor {
         this.activate()
     }
 
-    layer(X) {
+    vector(X) {
         let result = []
 
         for (let Y=0; Y < this.dimension.Y; Y++) result.push(this.state(X, Y, 0))
@@ -65,7 +73,7 @@ class Tensor {
     }
 
     get output() {
-        return this.layer(this.dimension.X-1)
+        return this.vector(this.dimension.X-1)
     }
 
     reset() {
@@ -89,12 +97,7 @@ class Tensor {
         return this._state[index]
     }
 
-    train(new_threshold) {
-        this.threshold = new_threshold || this.threshold
-        while (this.maxError > this.threshold) this.correct()
-    }
-
-    correct() {
+    train() {
         let error = []
         let expectation = this._expected
 
@@ -111,16 +114,16 @@ class Tensor {
             for (let Y=0; Y < this.dimension.Y; Y++) {
                 for (let Z=1; Z < this.dimension.Z; Z++) {
                     let old_value = this.state(X,Y,Z)
-                    let diff = error[Y] * this.state(X-1, Y, 0) * this.rate
-                    let new_value = old_value+diff
+                    let diff = error[Y] * this.rate// * this.state(X-1, Y, 0)
+                    let new_value = old_value + diff
 
                     this.state(X,Y,Z,new_value)
                 }
             }
 
-            this.activate()
+            // this.activate()
 
-            expectation = this.layer(X)
+            expectation = this.vector(X)
         }
 
     }

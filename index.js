@@ -1,5 +1,12 @@
-let dim = {X:5, Y:3, Z:4}
+let dim = {X:7, Y:2}
 let T = new Tensor({dimension:dim})
+
+training_data = [
+    [ [0,0],[0,0] ],
+    [ [0,1],[1,1] ],
+    [ [1,0],[1,1] ],
+    [ [1,1],[0,0] ]
+]
 
 window.onload = function() {
     // draw inputs
@@ -40,7 +47,6 @@ window.onload = function() {
 function draw_tensor() {
     let errorer = document.getElementById('error')
     let main = document.getElementById('main')
-    let target_error = document.getElementById('target_error')
     let tensor = document.getElementById('tensor')
 
     tensor.outerHTML = ""
@@ -76,8 +82,6 @@ function draw_tensor() {
     main.appendChild(tensor)
 
     errorer.textContent = `Max Error = ${T.maxError}`
-    
-    target_error.setAttribute('value', T.threshold)
 }
 
 function handle_activation(event) {
@@ -129,12 +133,14 @@ function handle_save(event) {
     window.localStorage.setItem('tensor', T._state)
 }
 
-function handle_train(event) {
-    let value = +event.target.value
 
-    if (value < 0.01) value = 0.01
+function train(threshold=0.25) {
+    do {
+        for (let X of training_data) {
+            T.input = X[0]
+            T.expected = X[1]
+        }
+    } while (T.maxError > threshold)
 
-    if (value > 1) value = 1
-
-    while (T.maxError > value) handle_inputs()
+    draw_tensor()
 }

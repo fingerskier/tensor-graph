@@ -21,23 +21,32 @@
             border-right: 1px solid rgba(128,0,255,128);
             border-bottom: 1px solid rgba(0,128,255,128);
         }
+
+        div.fields {
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
     <div id="main">
         <form id="inputter">
-            <h3>Inputs</h3>
-            <fieldset id="inputs"></fieldset>
-            <h3>Expectation</h3>
-            <fieldset id="expects"></fieldset>
-            <button onclick="return handle_activation(event)" type="button">Activate</button>
-            <button onclick="return handle_inputs(event)" type="button">Correct</button>
-            <input id="target_error" onchange="return handle_train(event)" step="0.01" type="number" value="0.5">
-            <button onclick="return handle_save(event)" type="button">Save</button>
-            <button onclick="return handle_load(event)" type="button">Load</button>
+            <div class="fields">
+                <h3>Inputs</h3>
+                <fieldset id="inputs"></fieldset>
+            </div>
+            <div class="fields">
+                <button onclick="return handle_activation(event)" type="button">Activate</button>
+                <button onclick="return handle_inputs(event)" type="button">Correct</button>
+                <button onclick="return handle_save(event)" type="button">Save</button>
+                <button onclick="return handle_load(event)" type="button">Load</button>
+                <div id="error"></div>
+            </div>
+            <div class="fields">
+                <h3>Expectation</h3>
+                <fieldset id="expects"></fieldset>
+            </div>
         </form>
 
-        <div id="error"></div>
         <br/>
         <div id="tensor"></div>
     </div>
