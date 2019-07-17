@@ -93,13 +93,14 @@ class Tensor {
 
         this.maxError = 0
 
-        for (let Y=0; Y < this.dimension.Y; Y++) {
-            error[Y] = expectation[Y] - this.state(this.dimension.X-1, Y, 0)
-
-            this.maxError = Math.max(Math.abs(error[Y]), this.maxError)
-        }
-
+        
         for (let X=this.dimension.X-1; X >= 1; X--) {
+            for (let Y=0; Y < this.dimension.Y; Y++) {
+                error[Y] = expectation[Y] - this.state(X, Y, 0)
+    
+                if (X == this.dimension.X-1) this.maxError = Math.max(Math.abs(error[Y]), this.maxError)
+            }
+
             for (let Y=0; Y < this.dimension.Y; Y++) {
                 for (let Z=1; Z < this.dimension.Z; Z++) {
                     let old_value = this.state(X,Y,Z)
