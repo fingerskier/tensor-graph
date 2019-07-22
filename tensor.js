@@ -21,7 +21,7 @@ class Tensor {
 
         this.bias = 1
         this.dimension = {X:3, Y:3}
-        this._expected = [0.5, 0.5, 0.5]
+        this._expected = []
         this.maxError = 0
         this.rate = 0.1
         this.threshold = 0.1
@@ -52,10 +52,18 @@ class Tensor {
         }
     }
 
+    get expected() {
+        return this._expected
+    }
+
     set expected(arr) {
         this._expected = arr
 
         this.train()
+    }
+
+    get input() {
+        return this.vector(0)
     }
 
     set input(arr) {
@@ -81,6 +89,8 @@ class Tensor {
 
         for (let X=0; X < this.dimension.X; X++) {
             for (let Y=0; Y < this.dimension.Y; Y++) {
+                this._expected[Y] = 0.5
+
                 for (let Z=0; Z < this.dimension.Z; Z++) {
                     if (X) this.state(X, Y, Z, Math.random())
                     else this.state(X, Y, Z, 0)
@@ -103,18 +113,21 @@ class Tensor {
 
         this.maxError = 0
 
-        
+        for (let Y=0; Y < this.dimension.Y; Y++) {
+            error[Y] = expectation[Y] - this.state(this.dimension.X-1, Y, 0)
+console.log(error)
+            this.maxError = Math.max(Math.abs(error[Y]), this.maxError)
+        }
+
         for (let X=this.dimension.X-1; X >= 1; X--) {
-            for (let Y=0; Y < this.dimension.Y; Y++) {
-                error[Y] = expectation[Y] - this.state(X, Y, 0)
-    
-                if (X == this.dimension.X-1) this.maxError = Math.max(Math.abs(error[Y]), this.maxError)
-            }
 
             for (let Y=0; Y < this.dimension.Y; Y++) {
                 for (let Z=1; Z < this.dimension.Z; Z++) {
+                    let input = this.state(X-1,Y,0)
                     let old_value = this.state(X,Y,Z)
-                    let diff = error[Y] * this.rate// * this.state(X-1, Y, 0)
+                    let this_expectation = error[Y] / old_value
+
+                    let diff = error[Y] * input * this.rate// * this.state(X-1, Y, 0)
                     let new_value = old_value + diff
 
                     this.state(X,Y,Z,new_value)
@@ -123,7 +136,7 @@ class Tensor {
 
             // this.activate()
 
-            expectation = this.vector(X)
+            // expectation = this.vector(X)
         }
 
     }

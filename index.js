@@ -1,10 +1,11 @@
 let dim = {X:7, Y:2}
 let T = new Tensor({dimension:dim})
+let trainer = {}
 
 training_data = [
     [ [0,0],[0,0] ],
-    [ [0,1],[1,1] ],
-    [ [1,0],[1,1] ],
+    [ [0,1],[1,0] ],
+    [ [1,0],[1,0] ],
     [ [1,1],[0,0] ]
 ]
 
@@ -35,6 +36,7 @@ window.onload = function() {
 
         node.setAttribute('for', input_id)
         input.setAttribute('id', input_id)
+        input.classList.add('expectation')
         input.setAttribute('value', T._expected[Y])
 
         node.appendChild(input)
@@ -82,6 +84,8 @@ function draw_tensor() {
     main.appendChild(tensor)
 
     errorer.textContent = `Max Error = ${T.maxError}`
+
+    update_inputs()
 }
 
 function handle_activation(event) {
@@ -117,6 +121,19 @@ function handle_inputs(event) {
     draw_tensor()
 }
 
+function update_inputs(event) {
+    let expects = document.querySelectorAll("#expects input")
+    let inputs = document.querySelectorAll("#inputs input")
+
+    for (let I=0; I < inputs.length; I++) {
+        inputs[I].value = T.input[I]
+    }
+
+    for (let I=0; I < expects.length; I++) {
+        expects[I].value = T.expected[I]
+    }
+}
+
 function handle_load(event) {
     let inputs = document.querySelectorAll("#inputs input")
 
@@ -134,13 +151,37 @@ function handle_save(event) {
 }
 
 
-function train(threshold=0.25) {
-    do {
-        for (let X of training_data) {
-            T.input = X[0]
-            T.expected = X[1]
-        }
-    } while (T.maxError > threshold)
+function _train(threshold=0.25) {
+    let I = 0
+    let tingle = setInterval(function(){
+        X = training_data[I]
+        T.input = X[0]
+        T.expected = X[1]
+        draw_tensor()
+        I++
 
-    draw_tensor()
+        if (I >= training_data.length) clearInterval(tingle)
+    }, 100)
+}
+
+function train(target_error=0.1) {
+    for (let I=0; I < training_data.length; I++) {
+        learn(I, target_error)
+    }
+}
+
+function learn(train_I, target_error=0.1, max_iterations=1000) {
+    let I = 0
+    let num_hits = 0
+    trainer = setInterval(function(){
+        X = training_data[train_I]
+        T.input = X[0]
+        T.expected = X[1]
+        draw_tensor()
+        I++
+
+        if (T.maxError <= target_error) num_hits++
+        
+        if ((num_hits >= training_data.length) || (I >= max_iterations)) clearInterval(trainer)
+    }, 100)
 }
