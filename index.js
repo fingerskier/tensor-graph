@@ -1,4 +1,4 @@
-let dim = {X:7, Y:2}
+let dim = {X:4, Y:2}
 let T = new Tensor({dimension:dim})
 let trainer = {}
 
@@ -114,9 +114,12 @@ function handle_inputs(event) {
     for (let I=0; I < expects.length; I++) {
         expected_values.push(+expects[I].value)
     }
-
-    T.input = input_values
-    T.expected = expected_values
+    
+    
+    for (let I=0; I < 100; I++) {
+        T.input = input_values
+        T.expected = expected_values
+    }
 
     draw_tensor()
 }

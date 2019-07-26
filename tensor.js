@@ -39,15 +39,15 @@ class Tensor {
     activate() {
         for (let X=1; X < this.dimension.X; X++) {
             for (let Y=0; Y < this.dimension.Y; Y++) {
-                let input = this.state(X-1, Y, 0)
                 let value = this.bias
-
+                
                 for (let Z=1; Z < this.dimension.Z; Z++) {
+                    let input = this.state(X-1, Z-1, 0)
                     let weight = this.state(X, Y, Z)
                     value += (input * weight)
                 }
 
-                this.state(X, Y, 0, RELU(value))
+                this.state(X, Y, 0, RELU(value / this.dimension.Y))
             }
         }
     }
@@ -115,21 +115,23 @@ class Tensor {
 
         for (let Y=0; Y < this.dimension.Y; Y++) {
             error[Y] = expectation[Y] - this.state(this.dimension.X-1, Y, 0)
-console.log(error)
+
             this.maxError = Math.max(Math.abs(error[Y]), this.maxError)
         }
 
-        for (let X=this.dimension.X-1; X >= 1; X--) {
+        console.info('expectation', expectation)
+        console.info('error', error)
 
+        for (let X=this.dimension.X-1; X >= 1; X--) {
             for (let Y=0; Y < this.dimension.Y; Y++) {
                 for (let Z=1; Z < this.dimension.Z; Z++) {
                     let input = this.state(X-1,Y,0)
                     let old_value = this.state(X,Y,Z)
-                    let this_expectation = error[Y] / old_value
 
-                    let diff = error[Y] * input * this.rate// * this.state(X-1, Y, 0)
+                    let diff = this.rate * error[Y]// * input
                     let new_value = old_value + diff
 
+                    console.log(diff)
                     this.state(X,Y,Z,new_value)
                 }
             }
