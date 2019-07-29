@@ -112,15 +112,12 @@ class Tensor {
         let expectation = this._expected
 
         this.maxError = 0
-
+        
         for (let Y=0; Y < this.dimension.Y; Y++) {
             error[Y] = expectation[Y] - this.state(this.dimension.X-1, Y, 0)
-
+            
             this.maxError = Math.max(Math.abs(error[Y]), this.maxError)
         }
-
-        console.info('expectation', expectation)
-        console.info('error', error)
 
         for (let X=this.dimension.X-1; X >= 1; X--) {
             for (let Y=0; Y < this.dimension.Y; Y++) {
@@ -128,15 +125,12 @@ class Tensor {
                     let input = this.state(X-1,Y,0)
                     let old_value = this.state(X,Y,Z)
 
-                    let diff = this.rate * error[Y]// * input
+                    let diff = this.rate * error[Y] * input
                     let new_value = old_value + diff
 
-                    console.log(diff)
                     this.state(X,Y,Z,new_value)
                 }
             }
-
-            // this.activate()
 
             // expectation = this.vector(X)
         }

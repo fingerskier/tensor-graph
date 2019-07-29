@@ -1,4 +1,4 @@
-let dim = {X:4, Y:2}
+let dim = {X:3, Y:2}
 let T = new Tensor({dimension:dim})
 let trainer = {}
 
