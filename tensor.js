@@ -151,10 +151,12 @@ class Tensor {
     }
 
     train() {
-        let error = 0
+        let error = []
         let expectation = this._expected.slice()
 
-        this.cost(this.expected)
+        for (let Y=0; Y < this.dimension.Y; Y++) {
+            error[Y] = expectation[Y] - this.state()
+        }
 
         for (let X=this.dimension.X-1; X >= 1; X--) {
             for (let Y=0; Y < this.dimension.Y; Y++) {
