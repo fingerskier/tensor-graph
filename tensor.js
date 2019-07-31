@@ -4,8 +4,7 @@
     Z = depth, weights, auto-config
 
     plane0 ~ (X,Y,0) ~ is the outputs
-    plane1 ~ (X,Y,1) ~ is the errors
-    plane2+ ~ (X,Y,Z>1) ~ is the weights
+    plane1 ~ (X,Y,Z>1) ~ is the weights
 */
 
 class Tensor {
@@ -23,7 +22,7 @@ class Tensor {
             this[thing] = config[thing]
         }
 
-        this.dimension.Z = this.dimension.Y + 2
+        this.dimension.Z = this.dimension.Y + 1
 
         this.reset()
     }
@@ -72,7 +71,7 @@ class Tensor {
     weight_vector(X,Y) {
         let result = []
 
-        for (let Z=2; Z < this.dimension.Z; Z++) result.push(this.state(X,Y,Z))
+        for (let Z=1; Z < this.dimension.Z; Z++) result.push(this.state(X,Y,Z))
 
         return result
     }
@@ -106,8 +105,8 @@ class Tensor {
             for (let Y=0; Y < this.dimension.Y; Y++) {
                 let value = this.bias
 
-                for (let Z=2; Z < this.dimension.Z; Z++) {
-                    let input = this.state(X-1, Z-2, 0)
+                for (let Z=1; Z < this.dimension.Z; Z++) {
+                    let input = this.state(X-1, Z-1, 0)
                     let weight = this.state(X, Y, Z)
 
                     value += (input * weight)
@@ -118,64 +117,29 @@ class Tensor {
         }
     }
 
-    cost(expectation) {
-        // calculate primary errors
-        for (let Y=0; Y < this.dimension.Y; Y++) {
-            let old_value = this.state(this.dimension.X-1,Y,0)
-            let this_error = expectation[Y] - old_value
-
-            this.state(this.dimension.X-1, Y, 1, this_error)
-        }
-
-        // calculate subsequent errors
-        for (let X=this.dimension.X-2; X > 0; X--) {    // start at the first hidden layer
-            for (let Y=0; Y < this.dimension.Y; Y++) {
-                error = weight_v * err_v
-
-                let primary_error = this.state(X+1,Y,1)
-                let this_error = 0
-
-                for (let Z=2; Z < this.dimension.Z; Z++) {
-                    let this_weight = this.state(X,Y,Z)
-                    let weight_sum = this.weight_vector(X,Y).reduce((a,b)=>{return a+b})
-
-                    this_error += (this_weight / weight_sum)
-                }
-
-                console.log(this_error, primary_error)
-                this_error *= primary_error
-
-                this.state(X,Y,1, primary_error)
-            }
-        }
-    }
-
     train() {
         let error = []
         let expectation = this._expected.slice()
 
         for (let Y=0; Y < this.dimension.Y; Y++) {
-            error[Y] = expectation[Y] - this.state()
+            error[Y] = expectation[Y] - this.state(this.dimension.X-1, Y, 0)
         }
+        
+        console.log(expectation)
 
         for (let X=this.dimension.X-1; X >= 1; X--) {
             for (let Y=0; Y < this.dimension.Y; Y++) {
-                let error = this.state(X,Y,1)
-                for (let Z=2; Z < this.dimension.Z; Z++) {
-                    let input = this.state(X-1,Y,0)
+                let activation = this.state(X,Y,0)
+                let gradient = dsigmoid(activation) * error[Y] * this.rate
+                let delta = gradient * activation
+
+                for (let Z=1; Z < this.dimension.Z; Z++) {
                     let old_value = this.state(X,Y,Z)
-                    let weight_error = error * this.weight_vector(X,Y,Z)
-                    
-                    let diff = this.rate * old_value * weight_error * input
-                    
-                    let new_value = old_value + diff
-                    
-                    this.state(X,Y,Z,new_value)
+                    let new_value = old_value + delta
+
+                    this.state(X,Y,Z, new_value)
                 }
             }
-            
-            // this.activate()
-            expectation = this.layer(X)
         }
 
         this.maxError = 0

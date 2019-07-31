@@ -1,0 +1,19 @@
+Training Process
+...elementary computation of stochastic gradient descent
+
+1. Activate
+
+1. Capture expected outputs
+
+2. Calculate outputs errors
+
+3. Calculate gradients
+    gradient = dfn(this_activation) * output_error * learning_rate
+
+4. Calculate deltas
+    delta = gradient * prior_activation
+
+5. Adjust weights
+    weight += delta
+
+6. Repeat from (3) if another hidden layer exists

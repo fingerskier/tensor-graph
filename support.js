@@ -1,5 +1,9 @@
 function sigmoid(X) {
-	return 1 / (1 + Math.exp(X))
+	return 1 / (1 + Math.exp(-X))
+}
+
+function dsigmoid(X) {
+    return sigmoid(X) * (1 - sigmoid(X))
 }
 
 function RELU(X) {
