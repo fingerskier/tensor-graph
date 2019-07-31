@@ -1,54 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>tensor-graph</title>
-    <script src="tensor.js"></script>
-    <script src="index.js"></script>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>tensor-graph</title>
 
-    <style>
-        table {
-            margin: 0 0 3rem 3rem;
-        }
+        <link rel="stylesheet" href="index.css">
+        <script src="vector.js"></script>
+        <script src="tensor.js"></script>
+        <script src="html.js"></script>
+        <script src="index.js"></script>
+    </head>
 
-        label {
-            display: block;
-        }
+    <body>
+        <div id="main">
+            <form id="inputter">
+                <h3>Training Data</h3>
+                <table id="data"></table>
+                <button onclick="return _train()"  type="button">Train</button>
+                <br/>
+                <div class="fields">
+                    <h3>Inputs</h3>
+                    <fieldset id="inputs"></fieldset>
+                </div>
+                <div class="fields">
+                    <button onclick="return handle_activation(event)" type="button">Activate</button>
+                    <button onclick="return handle_inputs(event)" type="button">Correct</button>
+                    <button onclick="return handle_save(event)" type="button">Save</button>
+                    <button onclick="return handle_load(event)" type="button">Load</button>
+                    <div id="error"></div>
+                    <div>I = <span id="iterations"></span></div>
+                </div>
+                <div class="fields">
+                    <h3>Expectation</h3>
+                    <fieldset id="expects"></fieldset>
+                </div>
+            </form>
 
-        td {
-            border-right: 1px solid rgba(128,0,255,128);
-            border-bottom: 1px solid rgba(0,128,255,128);
-        }
-
-        div.fields {
-            display: inline-block;
-        }
-    </style>
-</head>
-<body>
-    <div id="main">
-        <form id="inputter">
-            <div class="fields">
-                <h3>Inputs</h3>
-                <fieldset id="inputs"></fieldset>
-            </div>
-            <div class="fields">
-                <button onclick="return handle_activation(event)" type="button">Activate</button>
-                <button onclick="return handle_inputs(event)" type="button">Correct</button>
-                <button onclick="return handle_save(event)" type="button">Save</button>
-                <button onclick="return handle_load(event)" type="button">Load</button>
-                <div id="error"></div>
-            </div>
-            <div class="fields">
-                <h3>Expectation</h3>
-                <fieldset id="expects"></fieldset>
-            </div>
-        </form>
-
-        <br/>
-        <div id="tensor"></div>
-    </div>
-</body>
+            <br/>
+            <div id="tensor"></div>
+        </div>
+    </body>
 </html>

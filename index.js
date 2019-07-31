@@ -1,4 +1,4 @@
-let dim = {X:3, Y:2}
+let dim = {X:4, Y:2}
 let T = new Tensor({dimension:dim})
 let trainer = {}
 
@@ -10,6 +10,24 @@ training_data = [
 ]
 
 window.onload = function() {
+    // draw data
+    let data = document.getElementById('data')
+    let innards = ''
+    for (let X in training_data) {
+        let E = training_data[X]
+
+        innards += 
+        tr(td('input')+td('output')+td('train')+td('act'))
+        +
+        tr( td(E[0]) + td(E[1])
+            +
+            td( button(X,{ id: "traindat_${X}", onclick: `return train_single(${X})`, type: "button", }) )
+            +
+            td( button(X,{ id: "actdat_${X}", onclick: `return activate(${X})`, type: "button", }) )
+        )
+    }
+    data.innerHTML = innards
+
     // draw inputs
     let inputs = document.getElementById('inputs')
 
@@ -46,10 +64,16 @@ window.onload = function() {
     draw_tensor()
 }
 
-function draw_tensor() {
+function train_button(X) {
+    learn(X,1)
+    draw_tensor()
+}
+
+function draw_tensor(iteration) {
     let errorer = document.getElementById('error')
     let main = document.getElementById('main')
     let tensor = document.getElementById('tensor')
+    let I_show = document.getElementById('iterations')
 
     tensor.outerHTML = ""
 
@@ -58,9 +82,15 @@ function draw_tensor() {
 
     for (let Z=0; Z < dim.Z; Z++) {
         let table = document.createElement('table')
-        let header = document.createElement('div')
+        let header = document.createElement('tr')
+        let header_text = `Weights ${Z}`
 
-        header.textContent = `Layer ${Z}`
+        if (Z == 0) header_text = 'Activations'
+        if (Z == 1) header_text = 'Errors'
+
+        header.innerHTML = td(header_text, {colspan:dim.X})
+        table.appendChild(header)
+        table.classList.add('layer_table')
 
         for (let Y=0; Y < dim.Y; Y++) {
             let row = document.createElement('tr')
@@ -77,13 +107,14 @@ function draw_tensor() {
             table.appendChild(row)
         }
 
-        tensor.appendChild(header)
         tensor.appendChild(table)
     }
 
     main.appendChild(tensor)
 
     errorer.textContent = `Max Error = ${T.maxError}`
+
+    if (iteration) I_show.textContent = iteration
 
     update_inputs()
 }
@@ -173,14 +204,35 @@ function train(target_error=0.1) {
     }
 }
 
-function learn(train_I, target_error=0.1, max_iterations=1000) {
+
+function activate(train_I) {
+    X = training_data[train_I]
+
+    T.input = X[0]
+
+    draw_tensor(train_I)
+}
+
+function train_single(train_I) {
+    X = training_data[train_I]
+
+    // for (let I=0; I < 100; I++) {
+        T.input = X[0]
+        T.expected = X[1]
+    // }
+
+    draw_tensor(train_I)
+}
+
+function learn(train_I, target_error=0.1, max_iterations=100) {
     let I = 0
     let num_hits = 0
+
     trainer = setInterval(function(){
         X = training_data[train_I]
         T.input = X[0]
         T.expected = X[1]
-        draw_tensor()
+        draw_tensor(I)
         I++
 
         if (T.maxError <= target_error) num_hits++
