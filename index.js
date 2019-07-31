@@ -75,10 +75,7 @@ function draw_tensor(iteration) {
     let tensor = document.getElementById('tensor')
     let I_show = document.getElementById('iterations')
 
-    tensor.outerHTML = ""
-
-    tensor = document.createElement('div')
-    tensor.setAttribute('id', 'tensor')
+    tensor.innerHTML = ""
 
     for (let Z=0; Z < dim.Z; Z++) {
         let table = document.createElement('table')
@@ -86,7 +83,7 @@ function draw_tensor(iteration) {
         let header_text = `Weights ${Z}`
 
         if (Z == 0) header_text = 'Activations'
-        if (Z == 1) header_text = 'Errors'
+        if (Z == 1) header_text = 'Biases'
 
         header.innerHTML = td(header_text, {colspan:dim.X})
         table.appendChild(header)
@@ -110,13 +107,31 @@ function draw_tensor(iteration) {
         tensor.appendChild(table)
     }
 
-    main.appendChild(tensor)
-
     errorer.textContent = `Max Error = ${T.maxError}`
 
     if (iteration) I_show.textContent = iteration
 
     update_inputs()
+}
+
+function draw_nucleon() {
+    let nucleon = document.getElementById('nucleon')
+    nucleon.innerHTML = ''
+
+    let table = document.createElement('table')
+
+    let row = document.createElement('tr')
+    for (let I=0; I < T._state.length; I++) {
+        let cell = document.createElement('td')
+
+        cell.textContent = Math.trunc(T._state[I]*100)/100
+
+        row.appendChild(cell)
+    }
+    
+    table.appendChild(row)
+
+    nucleon.appendChild(table)
 }
 
 function handle_activation(event) {
@@ -216,10 +231,10 @@ function activate(train_I) {
 function train_single(train_I) {
     X = training_data[train_I]
 
-    // for (let I=0; I < 100; I++) {
+    for (let I=0; I < 100; I++) {
         T.input = X[0]
         T.expected = X[1]
-    // }
+    }
 
     draw_tensor(train_I)
 }

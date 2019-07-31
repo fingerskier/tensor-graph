@@ -4,13 +4,13 @@
     Z = depth, weights, auto-config
 
     plane0 ~ (X,Y,0) ~ is the outputs
-    plane1 ~ (X,Y,Z>1) ~ is the weights
+    plane1 ~ (X,Y,1) ~ is the biases
+    plane2+ ~ (X,Y,Z>1) ~ is the weights
 */
 
 class Tensor {
     constructor(config) {
 
-        this.bias = 0.0001
         this.dimension = {X:3, Y:3}
         this._expected = []
         this.maxError = 0
@@ -22,7 +22,7 @@ class Tensor {
             this[thing] = config[thing]
         }
 
-        this.dimension.Z = this.dimension.Y + 1
+        this.dimension.Z = this.dimension.Y + 2
 
         this.reset()
     }
@@ -60,22 +60,6 @@ class Tensor {
         return this.vector(this.dimension.X-1)
     }
 
-    error_vector(X) {
-        let result = []
-
-        for (let Y=0; Y < this.dimension.Y; Y++) result.push(this.state(X,Y,1))
-
-        return result
-    }
-
-    weight_vector(X,Y) {
-        let result = []
-
-        for (let Z=1; Z < this.dimension.Z; Z++) result.push(this.state(X,Y,Z))
-
-        return result
-    }
-
 
     reset() {
         let initial_value = 0.5
@@ -103,16 +87,16 @@ class Tensor {
     activate() {
         for (let X=1; X < this.dimension.X; X++) {
             for (let Y=0; Y < this.dimension.Y; Y++) {
-                let value = this.bias
+                let value = this.state(X,Y,1)   // start with the bias
 
-                for (let Z=1; Z < this.dimension.Z; Z++) {
-                    let input = this.state(X-1, Z-1, 0)
+                for (let Z=2; Z < this.dimension.Z; Z++) {
+                    let input = this.state(X-1, Z-2, 0)
                     let weight = this.state(X, Y, Z)
 
                     value += (input * weight)
                 }
 
-                this.state(X, Y, 0, sigmoid(value / this.dimension.Y))
+                this.state(X, Y, 0, sigmoid(value))
             }
         }
     }
@@ -121,10 +105,12 @@ class Tensor {
         let error = []
         let expectation = this._expected.slice()
 
+        this.activate()
+
         for (let Y=0; Y < this.dimension.Y; Y++) {
             error[Y] = expectation[Y] - this.state(this.dimension.X-1, Y, 0)
         }
-        
+
         console.log(expectation)
 
         for (let X=this.dimension.X-1; X >= 1; X--) {
@@ -133,7 +119,11 @@ class Tensor {
                 let gradient = dsigmoid(activation) * error[Y] * this.rate
                 let delta = gradient * activation
 
-                for (let Z=1; Z < this.dimension.Z; Z++) {
+                let bias = this.state(X,Y,1)
+                let new_bias = bias + gradient
+                this.state(X,Y,1, new_bias)
+
+                for (let Z=2; Z < this.dimension.Z; Z++) {
                     let old_value = this.state(X,Y,Z)
                     let new_value = old_value + delta
 
@@ -146,5 +136,7 @@ class Tensor {
         for (let Y=0; Y < this.dimension.Y; Y++) {
             this.maxError = Math.max(Math.abs(error[Y]), this.maxError)
         }
+
+        this.activate()
     }
 }
