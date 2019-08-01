@@ -6,17 +6,19 @@
     plane0 ~ (X,Y,0) ~ is the outputs
     plane1 ~ (X,Y,1) ~ is the biases
     plane2+ ~ (X,Y,Z>1) ~ is the weights
+
+    This require `support.js` which contains the activation functions
 */
 
 class Tensor {
     constructor(config) {
-
         this.dimension = {X:3, Y:3}
         this._expected = []
-        this.maxError = 0
         this.rate = 0.1
         this.threshold = 0.1
         this._state = []
+        this.actFunction = sigmoid
+        this.dactFunction = dsigmoid
 
         for (let thing in config) {
             this[thing] = config[thing]
@@ -56,6 +58,15 @@ class Tensor {
         return result
     }
 
+    get maxError() {
+        let result = 0
+
+        for (let Y=0; Y < this.dimension.Y; Y++) {
+            let error = this.expected[Y] - this.state(this.dimension.X-1, Y, 0)
+            result = Math.max(Math.abs(error), result)
+        }
+    }
+
     get output() {
         return this.vector(this.dimension.X-1)
     }
@@ -85,6 +96,7 @@ class Tensor {
     }
 
     activate() {
+        // this function is called when the input vector is set
         for (let X=1; X < this.dimension.X; X++) {
             for (let Y=0; Y < this.dimension.Y; Y++) {
                 let value = this.state(X,Y,1)   // start with the bias
@@ -96,27 +108,26 @@ class Tensor {
                     value += (input * weight)
                 }
 
-                this.state(X, Y, 0, sigmoid(value))
+                this.state(X, Y, 0, this.actFunction(value))
             }
         }
     }
 
     train() {
+        // this function is called when the expected vector is set
         let error = []
         let expectation = this._expected.slice()
 
         this.activate()
 
-        for (let Y=0; Y < this.dimension.Y; Y++) {
-            error[Y] = expectation[Y] - this.state(this.dimension.X-1, Y, 0)
-        }
-
-        console.log(expectation)
-
         for (let X=this.dimension.X-1; X >= 1; X--) {
             for (let Y=0; Y < this.dimension.Y; Y++) {
+                error[Y] = expectation[Y] - this.state(this.dimension.X-1, Y, 0)
+            }
+    
+            for (let Y=0; Y < this.dimension.Y; Y++) {
                 let activation = this.state(X,Y,0)
-                let gradient = dsigmoid(activation) * error[Y] * this.rate
+                let gradient = this.dactFunction(activation) * error[Y] * this.rate
                 let delta = gradient * activation
 
                 let bias = this.state(X,Y,1)
@@ -130,11 +141,6 @@ class Tensor {
                     this.state(X,Y,Z, new_value)
                 }
             }
-        }
-
-        this.maxError = 0
-        for (let Y=0; Y < this.dimension.Y; Y++) {
-            this.maxError = Math.max(Math.abs(error[Y]), this.maxError)
         }
 
         this.activate()

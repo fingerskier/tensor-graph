@@ -111,6 +111,7 @@ function draw_tensor(iteration) {
 
     if (iteration) I_show.textContent = iteration
 
+    draw_nucleon()
     update_inputs()
 }
 
@@ -184,13 +185,7 @@ function update_inputs(event) {
 }
 
 function handle_load(event) {
-    let inputs = document.querySelectorAll("#inputs input")
-
     T._state = window.localStorage.getItem('tensor').split(',').map(val=>{return +val})
-
-    for (let I=0; I < inputs.length; I++) {
-        inputs[I].value = T.layer(0)[I]
-    }
 
     draw_tensor()
 }
@@ -231,10 +226,10 @@ function activate(train_I) {
 function train_single(train_I) {
     X = training_data[train_I]
 
-    for (let I=0; I < 100; I++) {
+    // for (let I=0; I < 100; I++) {
         T.input = X[0]
         T.expected = X[1]
-    }
+    // }
 
     draw_tensor(train_I)
 }
